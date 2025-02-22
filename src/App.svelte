@@ -28,6 +28,7 @@
 	  script.async = true;
 	  script.defer = true;
 	  script.onload = () => {
+		console.log("gapi.js loaded");
 		window.gapi.load("auth2", () => {
 		  window.gapi.auth2.init({
 			client_id: "464641426916-3c3357ee858024a9ghch47t6dhu4eihj.apps.googleusercontent.com", // Gantilah dengan Client ID Anda
