@@ -1,30 +1,51 @@
 <script>
-	export let name;
-</script>
-
-<main>
-	<h1>Hello {name}!</h1>
-	<p>Visit the <a href="https://svelte.dev/tutorial">Svelte tutorial</a> to learn how to build Svelte apps.</p>
-</main>
-
-<style>
-	main {
-		text-align: center;
-		padding: 1em;
-		max-width: 240px;
-		margin: 0 auto;
+	import { onMount } from "svelte";
+	let email = "";
+	
+	const handleLogin = async (googleData) => {
+	  // Kirim idToken ke API backend
+	  const response = await fetch("/api/auth", {
+		method: "POST",
+		headers: {
+		  "Content-Type": "application/json",
+		},
+		body: JSON.stringify({ idToken: googleData.tokenId }),
+	  });
+	  const data = await response.json();
+	  if (data.message === "Login berhasil") {
+		email = googleData.profileObj.email;
+	  }
+	};
+  
+	const handleLogout = async () => {
+	  // Logout: hapus session dan token
+	  await fetch("/api/auth", { method: "GET" });
+	  email = "";
+	};
+  
+	onMount(() => {
+	  /* Setup Google Login */
+	  window.gapi.load("auth2", () => {
+		window.gapi.auth2.init({
+		  client_id: "464641426916-3c3357ee858024a9ghch47t6dhu4eihj.apps.googleusercontent.com", // Masukkan Client ID di sini
+		});
+	  });
+	});
+  </script>
+  
+  <main>
+	{#if email}
+	  <h1>Welcome, {email}</h1>
+	  <button on:click={handleLogout}>Logout</button>
+	{:else}
+	  <div id="google-signin" class="g-signin2" data-onsuccess={handleLogin}></div>
+	{/if}
+  </main>
+  
+  <style>
+	/* Styling untuk tombol Google Login */
+	.g-signin2 {
+	  margin: 20px;
 	}
-
-	h1 {
-		color: #ff3e00;
-		text-transform: uppercase;
-		font-size: 4em;
-		font-weight: 100;
-	}
-
-	@media (min-width: 640px) {
-		main {
-			max-width: none;
-		}
-	}
-</style>
+  </style>
+  
